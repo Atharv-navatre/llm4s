@@ -286,7 +286,7 @@ object ImageGeneration {
   def generateImagesAsync(
     prompt: String,
     count: Int,
-    config: ImageGenerationConfig,
+    config: ImageGenerationConfig,  
     options: ImageGenerationOptions = ImageGenerationOptions()
   )(implicit ec: ExecutionContext)
   : Future[Either[ImageGenerationError, Seq[GeneratedImage]]] =

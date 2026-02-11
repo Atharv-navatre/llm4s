@@ -1,8 +1,7 @@
 package org.llm4s.imagegeneration
-
+import org.llm4s.imageprocessing.ImageProcessing
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-
 import java.nio.file.Files
 import java.util.Base64
 
@@ -67,6 +66,35 @@ class ImageGenerationTest extends AnyFunSuite with Matchers {
           averageGenerationTime = Some(100)
         )
       )
+  }
+
+      // ===============================
+  // ASYNC TESTS (ADD HERE)
+  // ===============================
+
+    test("generateImageAsync wraps sync call in Future") {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    import scala.concurrent.Await
+    import scala.concurrent.duration.*
+
+    val client = new MockImageGenerationClient()
+    val future = client.generateImageAsync("valid prompt")
+    val result = Await.result(future, 5.seconds)
+
+    result.isRight shouldBe true
+  }
+
+  test("analyzeImageAsync wraps sync analyzeImage in Future") {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    import scala.concurrent.Await
+    import scala.concurrent.duration.*
+
+    val client = ImageProcessing.localImageProcessor()
+
+    val future = client.analyzeImageAsync("test.png", None)
+    val result = Await.result(future, 5.seconds)
+
+    result.isRight shouldBe true
   }
 
   // ===== MODEL UNIT TESTS =====
