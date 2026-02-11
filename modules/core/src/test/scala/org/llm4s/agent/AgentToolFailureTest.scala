@@ -598,6 +598,22 @@ class AgentToolFailureTest extends AnyFlatSpec with Matchers with MockFactory {
     pe("kind").str shouldBe "invalid_nesting"
     pe("expectedType").str shouldBe "object"
     pe("receivedType").str shouldBe "array"
+    pe("parentPath").str shouldBe "parent"
+  }
+
+  //
+// 👇 ADD NEW TEST DIRECTLY BELOW THIS
+//
+
+  "ToolCallErrorJson" should "handle InvalidNesting with nested parent path" in {
+    val paramErrors = List(
+      ToolParameterError.InvalidNesting("child", "root.parent", "array")
+    )
+    val error = ToolCallError.InvalidArguments("nested_tool", paramErrors)
+    val json  = ToolCallErrorJson.toJson(error)
+
+    val pe = json("parameterErrors")(0)
+    pe("parentPath").str shouldBe "root.parent"
   }
 
   // ============================================================================
