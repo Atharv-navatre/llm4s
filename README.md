@@ -136,9 +136,16 @@ To ensure code quality, we use a Git pre-commit hook that automatically checks c
 
 ### Prerequisites
 
-- JDK 21+
-- SBT
-- Docker (for containerized workspace)
+- **Java JDK 17 or 21 (LTS)**  
+  ⚠️ Newer Java versions (e.g. Java 22/23) are not yet supported and may cause sbt failures.
+- **sbt (Scala Build Tool)**
+- **Docker** (optional, only required for containerized workspace examples)
+
+#### Windows Notes
+- Ensure `JAVA_HOME` is set correctly.
+- Ensure `C:\Windows\System32` is available in your `PATH` (required for standard Windows tools like `findstr`).
+- Use PowerShell or Git Bash for running sbt commands.
+
 
 ### Building the Project
 
