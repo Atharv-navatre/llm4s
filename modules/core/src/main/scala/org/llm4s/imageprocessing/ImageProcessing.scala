@@ -4,7 +4,7 @@ import org.llm4s.imageprocessing.config._
 import org.llm4s.imageprocessing.provider._
 import org.llm4s.imageprocessing.provider.anthropicclient.AnthropicVisionClient
 import org.llm4s.error.LLMError
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ Future, ExecutionContext }
 
 /**
  * Factory object for creating image processing clients.
@@ -72,14 +72,14 @@ trait ImageProcessingClient {
     imagePath: String,
     prompt: Option[String] = None
   ): Either[LLMError, ImageAnalysisResult]
-  
+
   def analyzeImageAsync(
-  imagePath: String,
-  prompt: Option[String]
-)(implicit ec: ExecutionContext): Future[Either[LLMError, ImageAnalysisResult]] =
-  Future {
-    analyzeImage(imagePath, prompt)
-  }
+    imagePath: String,
+    prompt: Option[String]
+  )(implicit ec: ExecutionContext): Future[Either[LLMError, ImageAnalysisResult]] =
+    Future {
+      analyzeImage(imagePath, prompt)
+    }
 
   /**
    * Preprocesses an image with specified operations.

@@ -4,8 +4,6 @@ import org.scalatest.matchers.should.Matchers
 import java.nio.file.Files
 import java.util.Base64
 
-
-
 /**
  * Comprehensive test suite for the Image Generation API.
  *
@@ -69,11 +67,11 @@ class ImageGenerationTest extends AnyFunSuite with Matchers {
       )
   }
 
-      // ===============================
+  // ===============================
   // ASYNC TESTS (ADD HERE)
   // ===============================
 
-    test("generateImageAsync wraps sync call in Future") {
+  test("generateImageAsync wraps sync call in Future") {
     import scala.concurrent.ExecutionContext.Implicits.global
     import scala.concurrent.Await
     import scala.concurrent.duration.*

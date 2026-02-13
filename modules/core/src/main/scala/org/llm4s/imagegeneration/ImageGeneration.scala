@@ -3,7 +3,7 @@ package org.llm4s.imagegeneration
 import java.time.Instant
 import java.nio.file.Path
 import org.llm4s.imagegeneration.provider.{ HttpClient, HuggingFaceClient, OpenAIImageClient, StableDiffusionClient }
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ Future, ExecutionContext }
 import scala.util.Try
 
 // ===== ERROR HANDLING =====
@@ -268,7 +268,7 @@ object ImageGeneration {
   ): Either[ImageGenerationError, Seq[GeneratedImage]] =
     client(config).generateImages(prompt, count, options)
 
-      // ======================
+    // ======================
   // NEW ASYNC VARIANTS
   // ======================
 
@@ -276,19 +276,17 @@ object ImageGeneration {
     prompt: String,
     config: ImageGenerationConfig,
     options: ImageGenerationOptions = ImageGenerationOptions()
-  )(implicit ec: ExecutionContext)
-  : Future[Either[ImageGenerationError, GeneratedImage]] =
+  )(implicit ec: ExecutionContext): Future[Either[ImageGenerationError, GeneratedImage]] =
     client(config).generateImageAsync(prompt, options)
 
   def generateImagesAsync(
     prompt: String,
     count: Int,
-    config: ImageGenerationConfig,  
+    config: ImageGenerationConfig,
     options: ImageGenerationOptions = ImageGenerationOptions()
-  )(implicit ec: ExecutionContext)
-  : Future[Either[ImageGenerationError, Seq[GeneratedImage]]] =
+  )(implicit ec: ExecutionContext): Future[Either[ImageGenerationError, Seq[GeneratedImage]]] =
     client(config).generateImagesAsync(prompt, count, options)
-    
+
   /** Get a Stable Diffusion client with default local configuration */
   def stableDiffusionClient(
     baseUrl: String = "http://localhost:7860",
