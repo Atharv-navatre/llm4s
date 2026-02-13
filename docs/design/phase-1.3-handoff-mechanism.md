@@ -1371,55 +1371,57 @@ for {
 package org.llm4s.samples.handoff
 
 import org.llm4s.agent.{ Agent, Handoff }
-import org.llm4s.llmconnect.LLMClient
+import org.llm4s.config.Llm4sConfig
+import org.llm4s.llmconnect.LLMConnect
 import org.llm4s.llmconnect.model.SystemMessage
 import org.llm4s.toolapi.ToolRegistry
 
-object SimpleTriageHandoffExample {
-  def run(client: LLMClient): Unit = {
-    val result = for {
-      // Create specialized agents
-      supportAgent = new Agent(client)
-      salesAgent = new Agent(client)
-      refundAgent = new Agent(client)
+object SimpleTriageHandoffExample extends App {
+  val result = for {
+    providerConfig <- Llm4sConfig.provider()
+    client <- LLMConnect.getClient(providerConfig)
 
-      // Create triage agent
-      triageAgent = new Agent(client)
+    // Create specialized agents
+    supportAgent = new Agent(client)
+    salesAgent = new Agent(client)
+    refundAgent = new Agent(client)
 
-      // Run with handoff options
-      finalState <- triageAgent.run(
-        query = "I want a refund for my order #12345",
-        tools = ToolRegistry.empty,
-        handoffs = Seq(
-          Handoff.to(supportAgent, "General customer support questions"),
-          Handoff.to(salesAgent, "Sales and product inquiries"),
-          Handoff.to(refundAgent, "Refund and return requests")
-        ),
-        systemMessage = Some(SystemMessage(
-          """You are a customer service triage agent.
-            |Analyze customer queries and hand off to the appropriate specialist:
-            |- Support agent for general questions
-            |- Sales agent for product inquiries
-            |- Refund agent for refunds and returns
-            |""".stripMargin
-        ))
-      )
-    } yield finalState
+    // Create triage agent
+    triageAgent = new Agent(client)
 
-    result match {
-      case Right(state) =>
-        println(s"✅ Query handled successfully")
-        println(s"Status: ${state.status}")
-        println(s"Response: ${state.conversation.messages.last.content}")
+    // Run with handoff options
+    finalState <- triageAgent.run(
+      query = "I want a refund for my order #12345",
+      tools = ToolRegistry.empty,
+      handoffs = Seq(
+        Handoff.to(supportAgent, "General customer support questions"),
+        Handoff.to(salesAgent, "Sales and product inquiries"),
+        Handoff.to(refundAgent, "Refund and return requests")
+      ),
+      systemMessage = Some(SystemMessage(
+        """You are a customer service triage agent.
+          |Analyze customer queries and hand off to the appropriate specialist:
+          |- Support agent for general questions
+          |- Sales agent for product inquiries
+          |- Refund agent for refunds and returns
+          |""".stripMargin
+      ))
+    )
+  } yield finalState
 
-        if (state.logs.exists(_.contains("handoff"))) {
-          println(s"🔄 Handoff occurred:")
-          state.logs.filter(_.contains("handoff")).foreach(log => println(s"  - $log"))
-        }
+  result match {
+    case Right(state) =>
+      println(s"✅ Query handled successfully")
+      println(s"Status: ${state.status}")
+      println(s"Response: ${state.conversation.messages.last.content}")
 
-      case Left(error) =>
-        println(s"❌ Error: ${error.formatted}")
-    }
+      if (state.logs.exists(_.contains("handoff"))) {
+        println(s"🔄 Handoff occurred:")
+        state.logs.filter(_.contains("handoff")).foreach(log => println(s"  - $log"))
+      }
+
+    case Left(error) =>
+      println(s"❌ Error: ${error.formatted}")
   }
 }
 ```
@@ -1430,46 +1432,48 @@ object SimpleTriageHandoffExample {
 package org.llm4s.samples.handoff
 
 import org.llm4s.agent.{ Agent, Handoff }
-import org.llm4s.llmconnect.LLMClient
+import org.llm4s.config.Llm4sConfig
+import org.llm4s.llmconnect.LLMConnect
 import org.llm4s.llmconnect.model.SystemMessage
 import org.llm4s.toolapi.ToolRegistry
 
-object MathSpecialistHandoffExample {
-  def run(client: LLMClient): Unit = {
-    val result = for {
-      // General agent
-      generalAgent = new Agent(client)
+object MathSpecialistHandoffExample extends App {
+  val result = for {
+    providerConfig <- Llm4sConfig.provider()
+    client <- LLMConnect.getClient(providerConfig)
 
-      // Math specialist
-      mathAgent = new Agent(client)
+    // General agent
+    generalAgent = new Agent(client)
 
-      // Run general agent with math handoff
-      finalState <- generalAgent.run(
-        query = "What is the integral of 2x + 5 from 0 to 10?",
-        tools = ToolRegistry.empty,
-        handoffs = Seq(
-          Handoff.to(
-            mathAgent,
-            "Mathematical questions requiring calculus or advanced math"
-          )
-        ),
-        systemMessage = Some(SystemMessage(
-          """You are a general assistant.
-            |For mathematical questions involving calculus, algebra, or advanced math,
-            |hand off to the math specialist.
-            |""".stripMargin
-        ))
-      )
-    } yield finalState
+    // Math specialist
+    mathAgent = new Agent(client)
 
-    result match {
-      case Right(state) =>
-        println(s"✅ Math question answered:")
-        println(state.conversation.messages.last.content)
+    // Run general agent with math handoff
+    finalState <- generalAgent.run(
+      query = "What is the integral of 2x + 5 from 0 to 10?",
+      tools = ToolRegistry.empty,
+      handoffs = Seq(
+        Handoff.to(
+          mathAgent,
+          "Mathematical questions requiring calculus or advanced math"
+        )
+      ),
+      systemMessage = Some(SystemMessage(
+        """You are a general assistant.
+          |For mathematical questions involving calculus, algebra, or advanced math,
+          |hand off to the math specialist.
+          |""".stripMargin
+      ))
+    )
+  } yield finalState
 
-      case Left(error) =>
-        println(s"❌ Error: ${error.formatted}")
-    }
+  result match {
+    case Right(state) =>
+      println(s"✅ Math question answered:")
+      println(state.conversation.messages.last.content)
+
+    case Left(error) =>
+      println(s"❌ Error: ${error.formatted}")
   }
 }
 ```
@@ -1480,44 +1484,46 @@ object MathSpecialistHandoffExample {
 package org.llm4s.samples.handoff
 
 import org.llm4s.agent.{ Agent, Handoff }
-import org.llm4s.llmconnect.LLMClient
+import org.llm4s.config.Llm4sConfig
+import org.llm4s.llmconnect.LLMConnect
 import org.llm4s.llmconnect.model.SystemMessage
 import org.llm4s.toolapi.ToolRegistry
 
-object ContextPreservationExample {
-  def run(client: LLMClient): Unit = {
-    val result = for {
-      generalAgent = new Agent(client)
-      specialistAgent = new Agent(client)
+object ContextPreservationExample extends App {
+  val result = for {
+    providerConfig <- Llm4sConfig.provider()
+    client <- LLMConnect.getClient(providerConfig)
 
-      // Multi-turn conversation with context
-      state1 <- generalAgent.run(
-        "I'm working on a quantum computing project",
-        ToolRegistry.empty
-      )
+    generalAgent = new Agent(client)
+    specialistAgent = new Agent(client)
 
-      state2 <- generalAgent.continueConversation(
-        state1,
-        "Can you explain quantum entanglement?",
-        handoffs = Seq(
-          Handoff(
-            targetAgent = specialistAgent,
-            transferReason = Some("Quantum physics expertise"),
-            preserveContext = true  // Transfer full conversation
-          )
+    // Multi-turn conversation with context
+    state1 <- generalAgent.run(
+      "I'm working on a quantum computing project",
+      ToolRegistry.empty
+    )
+
+    state2 <- generalAgent.continueConversation(
+      state1,
+      "Can you explain quantum entanglement?",
+      handoffs = Seq(
+        Handoff(
+          targetAgent = specialistAgent,
+          transferReason = Some("Quantum physics expertise"),
+          preserveContext = true  // Transfer full conversation
         )
       )
-    } yield state2
+    )
+  } yield state2
 
-    result match {
-      case Right(state) =>
-        println(s"✅ Full conversation context preserved:")
-        println(s"Total messages: ${state.conversation.messages.length}")
-        println(s"Response: ${state.conversation.messages.last.content}")
+  result match {
+    case Right(state) =>
+      println(s"✅ Full conversation context preserved:")
+      println(s"Total messages: ${state.conversation.messages.length}")
+      println(s"Response: ${state.conversation.messages.last.content}")
 
-      case Left(error) =>
-        println(s"❌ Error: ${error.formatted}")
-    }
+    case Left(error) =>
+      println(s"❌ Error: ${error.formatted}")
   }
 }
 ```
@@ -1529,43 +1535,45 @@ package org.llm4s.samples.handoff
 
 import org.llm4s.agent.{ Agent, Handoff }
 import org.llm4s.agent.guardrails.builtin._
-import org.llm4s.llmconnect.LLMClient
+import org.llm4s.config.Llm4sConfig
+import org.llm4s.llmconnect.LLMConnect
 import org.llm4s.toolapi.ToolRegistry
 
-object HandoffWithGuardrailsExample {
-  def run(client: LLMClient): Unit = {
-    val result = for {
-      generalAgent = new Agent(client)
-      technicalAgent = new Agent(client)
+object HandoffWithGuardrailsExample extends App {
+  val result = for {
+    providerConfig <- Llm4sConfig.provider()
+    client <- LLMConnect.getClient(providerConfig)
 
-      // General agent: lenient guardrails
-      finalState <- generalAgent.run(
-        query = "Explain how neural networks work",
-        tools = ToolRegistry.empty,
-        handoffs = Seq(
-          Handoff.to(technicalAgent, "Technical AI/ML questions")
-        ),
-        inputGuardrails = Seq(
-          LengthCheck(1, 10000)
-        ),
-        outputGuardrails = Seq.empty
-      )
+    generalAgent = new Agent(client)
+    technicalAgent = new Agent(client)
 
-      // If handed off to technical agent:
-      // Technical agent has its own guardrails (not inherited)
-      // - Stricter length check
-      // - JSON output requirement
-      // - Professional tone
-    } yield finalState
+    // General agent: lenient guardrails
+    finalState <- generalAgent.run(
+      query = "Explain how neural networks work",
+      tools = ToolRegistry.empty,
+      handoffs = Seq(
+        Handoff.to(technicalAgent, "Technical AI/ML questions")
+      ),
+      inputGuardrails = Seq(
+        LengthCheck(1, 10000)
+      ),
+      outputGuardrails = Seq.empty
+    )
 
-    result match {
-      case Right(state) =>
-        println(s"✅ Query processed with appropriate guardrails")
-        println(s"Response: ${state.conversation.messages.last.content}")
+    // If handed off to technical agent:
+    // Technical agent has its own guardrails (not inherited)
+    // - Stricter length check
+    // - JSON output requirement
+    // - Professional tone
+  } yield finalState
 
-      case Left(error) =>
-        println(s"❌ Guardrail validation failed: ${error.formatted}")
-    }
+  result match {
+    case Right(state) =>
+      println(s"✅ Query processed with appropriate guardrails")
+      println(s"Response: ${state.conversation.messages.last.content}")
+
+    case Left(error) =>
+      println(s"❌ Guardrail validation failed: ${error.formatted}")
   }
 }
 ```
